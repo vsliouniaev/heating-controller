@@ -1,0 +1,6 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "idf.espIdfPath": "/home/vas/dev/esp32/esp-idf",
+    "idf.toolsPath": "/home/vas/.espressif",
+    "idf.pythonInstallPath": "/usr/bin/python3"
+}
