@@ -1,4 +1,5 @@
-#include <stdio.h>
+#include "main.h"
+
 #include "esp_log.h"
 
 static const char *TAG = "HEAT_CONTROLLER";
