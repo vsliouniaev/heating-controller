@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "controller.h": "c"
+        "controller.h": "c",
+        "esp_zigbee_core.h": "c"
     }
 }
