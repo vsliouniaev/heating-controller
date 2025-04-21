@@ -1,5 +1,4 @@
 idf_component_register(
-    SRCS
-    "controller.c"
-    INCLUDE_DIRS "."
+    SRC_DIRS  "." "$ENV{IDF_PATH}/examples/zigbee/common/zcl_utility/src"
+    INCLUDE_DIRS "." "$ENV{IDF_PATH}/examples/zigbee/common/zcl_utility/include"
 )
