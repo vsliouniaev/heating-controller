@@ -15,6 +15,7 @@ static esp_err_t zb_action_handler(esp_zb_core_action_callback_id_t callback_id,
     esp_err_t ret = ESP_OK;
     switch (callback_id) {
     default:
+        ESP_LOGI(TAG, "Receive Zigbee action(0x%x) callback", callback_id);
         break;
     }
     return ret;

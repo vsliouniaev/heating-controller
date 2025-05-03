@@ -4,9 +4,9 @@
 #define INSTALLCODE_POLICY_ENABLE       false                                // enable the install code policy for security
 #define ESP_ZB_PRIMARY_CHANNEL_MASK     ESP_ZB_TRANSCEIVER_ALL_CHANNELS_MASK // primary channel mask use
 
-// Basic manufacturer information
-#define ESP_MANUFACTURER_NAME               "\x09""ESPRESSIF"
-#define ESP_MODEL_IDENTIFIER                "\x07"CONFIG_IDF_TARGET
+// Basic manufacturer information Attribute values in ZCL string format - The string should started with its length
+#define ESP_MANUFACTURER_NAME           "\x0A""VSLIOUNIAEV"
+#define ESP_MODEL_IDENTIFIER            "\x0A""HEATCONTROL"
 
 // Test-only things here
 #define HA_ESP_LIGHT_ENDPOINT           10 
