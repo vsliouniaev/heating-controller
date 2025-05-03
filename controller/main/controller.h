@@ -5,8 +5,8 @@
 #define ESP_ZB_PRIMARY_CHANNEL_MASK     ESP_ZB_TRANSCEIVER_ALL_CHANNELS_MASK // primary channel mask use
 
 // Basic manufacturer information Attribute values in ZCL string format - The string should started with its length
-#define ESP_MANUFACTURER_NAME           "\x0A""VSLIOUNIAEV"
-#define ESP_MODEL_IDENTIFIER            "\x0A""HEATCONTROL"
+#define ESP_MANUFACTURER_NAME           "\x0A""vsliouniaev"
+#define ESP_MODEL_IDENTIFIER            "\x0E""Heat Controller"
 
 // Test-only things here
 #define HA_ESP_LIGHT_ENDPOINT           10 

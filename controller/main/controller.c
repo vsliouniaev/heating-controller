@@ -94,6 +94,9 @@ static void esp_zb_task(void *pvParameters)
     esp_zb_set_primary_network_channel_set(ESP_ZB_PRIMARY_CHANNEL_MASK);
     ESP_ERROR_CHECK(esp_zb_start(false));
 
+    // To receive some arbitrary data we can create a custom cluster https://docs.espressif.com/projects/esp-zigbee-sdk/en/latest/esp32/user-guide/zcl_custom.html
+    // then receive ESP_ZB_ZCL_ATTR_TYPE_OCTET_STRING
+
     // This appears to be the same function call for all device types, including
     // Zigbee Router and Zigbee End Device based on the samples
     esp_zb_stack_main_loop();
