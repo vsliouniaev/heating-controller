@@ -1,4 +1,4 @@
-.PHONY: falsh
+.PHONY: flash
 flash:
 	cd controller && \
 	idf.py -p /dev/ttyACM0 flash monitor
@@ -6,4 +6,7 @@ flash:
 .PHONY: erase
 erase:
 	cd controller && \
-	idf.py -p /dev/ttyACM0 erase-flash	
+	idf.py -p /dev/ttyACM0 erase-flash
+
+isp-idf-export:
+	. ${IDF_PATH}/export.sh

@@ -80,16 +80,72 @@ static void esp_zb_task(void *pvParameters)
     // Configure this as a router, since it will always be plugged in.
     esp_zb_cfg_t zb_nwk_cfg = ESP_ZB_ZR_CONFIG();
     esp_zb_init(&zb_nwk_cfg);
+
+    // We need a custom cluster that's not part of the ZCL to be able to receive and send data
+    // We need to define a list of 3 standard thermostat ZCL-compliant endpoints
+    // We should have the custom cluster report its internal state, the sensor infos it gathered and the hash of the config we sent it
+    #define CUSTOM_SERVER_ENDPOINT 0x01
+    #define CUSTOM_CLIENT_ENDPOINT 0x01
+    #define CUSTOM_CLUSTER_ID 0xff00   
+    #define CUSTOM_COMMAND_RESP 0x0001
+
+    esp_zb_cluster_list_t *cluster_list = esp_zb_zcl_cluster_list_create();
+    esp_zb_attribute_list_t *custom_cluster = esp_zb_zcl_attr_list_create(CUSTOM_CLUSTER_ID);
+    uint16_t custom_attr1_id = 0x0000;
+    uint8_t custom_attr1_value[] = "\x0b""hello world";
+    uint16_t custom_attr2_id = 0x0001;
+    uint16_t custom_attr2_value = 0x1234;
+    esp_zb_custom_cluster_add_custom_attr(custom_cluster, custom_attr1_id, ESP_ZB_ZCL_ATTR_TYPE_CHAR_STRING,
+                                        ESP_ZB_ZCL_ATTR_ACCESS_WRITE_ONLY | ESP_ZB_ZCL_ATTR_ACCESS_REPORTING, custom_attr1_value);
+    esp_zb_custom_cluster_add_custom_attr(custom_cluster, custom_attr2_id, ESP_ZB_ZCL_ATTR_TYPE_U16, ESP_ZB_ZCL_ATTR_ACCESS_READ_WRITE,
+                                        &custom_attr2_value);
+
+    /* Mandatory clusters */
+    uint8_t mains_power;
+    mains_power = 0x01;
+
+    esp_zb_attribute_list_t *esp_zb_basic_cluster = esp_zb_zcl_attr_list_create(ESP_ZB_ZCL_CLUSTER_ID_BASIC);
+    esp_zb_basic_cluster_add_attr(esp_zb_basic_cluster, ESP_ZB_ZCL_ATTR_BASIC_MANUFACTURER_NAME_ID, ESP_MANUFACTURER_NAME);
+    esp_zb_basic_cluster_add_attr(esp_zb_basic_cluster, ESP_ZB_ZCL_ATTR_BASIC_MODEL_IDENTIFIER_ID, ESP_MODEL_IDENTIFIER);
+    esp_zb_basic_cluster_add_attr(esp_zb_basic_cluster, ESP_ZB_ZCL_ATTR_BASIC_POWER_SOURCE_ID, &mains_power);
+    esp_zb_cluster_list_add_basic_cluster(cluster_list, esp_zb_basic_cluster, ESP_ZB_ZCL_CLUSTER_SERVER_ROLE);
     
-    // Create a standard light configuration
-    esp_zb_on_off_light_cfg_t light_cfg = ESP_ZB_DEFAULT_ON_OFF_LIGHT_CONFIG();
-    esp_zb_ep_list_t *esp_zb_light_test_ep = esp_zb_on_off_light_ep_create(HA_ESP_LIGHT_ENDPOINT, &light_cfg);
-    zcl_basic_manufacturer_info_t info = {
-        .manufacturer_name = ESP_MANUFACTURER_NAME,
-        .model_identifier = ESP_MODEL_IDENTIFIER,
+
+    /* identify cluster create with fully customized */
+    // esp_zb_attribute_list_t *esp_zb_identify_cluster = esp_zb_zcl_attr_list_create(ESP_ZB_ZCL_CLUSTER_ID_IDENTIFY);
+    // esp_zb_identify_cluster_add_attr(esp_zb_identify_cluster, custom_attr1_id, &custom_attr1_value);
+    // esp_zb_identify_cluster_add_attr(esp_zb_identify_cluster, custom_attr2_id, &custom_attr2_value);
+    
+    // esp_zb_cluster_list_add_identify_cluster(cluster_list, esp_zb_identify_cluster, ESP_ZB_ZCL_CLUSTER_SERVER_ROLE);
+    esp_zb_cluster_list_add_identify_cluster(cluster_list, esp_zb_identify_cluster_create(NULL), ESP_ZB_ZCL_CLUSTER_SERVER_ROLE);
+    
+    
+    
+    
+    /* Custom cluster */
+    esp_zb_cluster_list_add_custom_cluster(cluster_list, custom_cluster, ESP_ZB_ZCL_CLUSTER_SERVER_ROLE);
+
+
+    esp_zb_ep_list_t *ep_list = esp_zb_ep_list_create();
+    esp_zb_endpoint_config_t endpoint_config = {
+        .endpoint = CUSTOM_SERVER_ENDPOINT,
+        .app_profile_id = ESP_ZB_AF_HA_PROFILE_ID,
+        .app_device_id = ESP_ZB_HA_CUSTOM_ATTR_DEVICE_ID,
+        .app_device_version = 0,
     };
-    esp_zcl_utility_add_ep_basic_manufacturer_info(esp_zb_light_test_ep, HA_ESP_LIGHT_ENDPOINT, &info);
-    esp_zb_device_register(esp_zb_light_test_ep);
+    esp_zb_ep_list_add_ep(ep_list, cluster_list, endpoint_config);
+    esp_zb_device_register(ep_list);
+
+    // Removed: Test std light configuration
+    // Create a standard light configuration
+    // esp_zb_on_off_light_cfg_t light_cfg = ESP_ZB_DEFAULT_ON_OFF_LIGHT_CONFIG();
+    // esp_zb_ep_list_t *esp_zb_light_test_ep = esp_zb_on_off_light_ep_create(HA_ESP_LIGHT_ENDPOINT, &light_cfg);
+    // zcl_basic_manufacturer_info_t info = {
+    //     .manufacturer_name = ESP_MANUFACTURER_NAME,
+    //     .model_identifier = ESP_MODEL_IDENTIFIER,
+    // };
+    // esp_zcl_utility_add_ep_basic_manufacturer_info(esp_zb_light_test_ep, HA_ESP_LIGHT_ENDPOINT, &info);
+    // esp_zb_device_register(esp_zb_light_test_ep);
     esp_zb_core_action_handler_register(zb_action_handler);
     esp_zb_set_primary_network_channel_set(ESP_ZB_PRIMARY_CHANNEL_MASK);
     ESP_ERROR_CHECK(esp_zb_start(false));
